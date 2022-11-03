@@ -53,6 +53,12 @@ class Line(object):
     
     def check_vertical_or_horizontal(self):
         return self.p1.x == self.p2.x or self.p1.y == self.p2.y
+    
+    def check_vertical_or_horizontal_or_diagonal(self):
+        return self.check_vertical_or_horizontal() or self.is_diagonal()
+    
+    def is_diagonal(self):
+        return abs(self.p1.x - self.p2.x) == abs(self.p1.y - self.p2.y)
 
 
     def intersect(self):
@@ -62,10 +68,29 @@ class Line(object):
             for i in range(min(self.p1.x, self.p2.x), max(self.p1.x, self.p2.x)+1):
                 res += [(self.p1.y, i)]
             return res
-        if self.p1.x == self.p2.x:
+        elif self.p1.x == self.p2.x:
             for j in range(min(self.p1.y, self.p2.y), max(self.p1.y, self.p2.y)+1):
                 res += [(j, self.p1.x)]
             return res
+        elif self.is_diagonal():
+            # logic to handle diagonal lines in here.
+            if( self.p1.x < self.p2.x and self.p1.y > self.p2.y )or (self.p1.x > self.p2.x and self.p1.y < self.p2.y):
+                for i in range(abs(self.p1.x - self.p2.x)+1):
+                    for j in range(abs(self.p1.x - self.p2.x) +1):
+                        if i + j == (abs(self.p1.x - self.p2.x)):
+                            res += [(min(self.p1.y, self.p2.y) + i, min(self.p1.x, self.p2.x) + j)]
+            else:
+                if self.p1.x < self.p2.x:
+                    for i in range(abs(self.p1.x - self.p2.x)+1):
+                        res += [(self.p1.y + i, self.p1.x + i)]
+                else:
+                    for i in range(abs(self.p1.x - self.p2.x)+1):
+                        res += [(self.p2.y + i, self.p2.x + i)] 
+            # print(res)
+            return res
+                # res += [(self.p1.x+i, self.p1.y+i)]
+                # produce all possible pairs (x,y) that sum up to the absolute difference between x and y
+        
         return None
 
 
@@ -79,11 +104,13 @@ def parse_lines(lines):
         p1 = Point(int(parr[0]), int(parr[1]))
         p2 = Point(int(p2arr[0]), int(p2arr[1]))
         l = Line(p1, p2)
-        if l.check_vertical_or_horizontal(): #first exercise
+        if l.check_vertical_or_horizontal_or_diagonal(): #first exercise
             res += [l]
-            
-            # print(l.intersect(), " = ", f"({l.p1.x},{l.p1.y}) -> ({l.p2.x},{l.p2.y})")
-    plane = Plane(10000, 10000, res)
+            if l.is_diagonal(): 
+              diag = l.intersect()
+            #   print(l.intersect(), " = ", f"({l.p1.x},{l.p1.y}) -> ({l.p2.x},{l.p2.y})")
+              
+    plane = Plane(1000, 1000, res)
     # plane.print_plane()
     print(plane.check_overlaps())
     return res
